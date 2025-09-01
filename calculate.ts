@@ -1,4 +1,4 @@
-let categories = ["Graz", "Wien", "Male", "Female"];
+let categories = ["Graz", "Wien", "Male", "Female", "City", "Land"];
 let candidates = ["x1", "x2", "x3", "x4", "x5", "x6"];
 let candidate_absolute_scores: number[][] = [[]];
 let category_weights: number[] = [];
@@ -70,38 +70,30 @@ for (let category_id = 0; category_id < categories.length; category_id++) {
   }
 }
 
-// holding all info about one combination:
-class Combination {
-  score: number;
-  candidate_ids: number[];
-
-  public calculate_score() {
-    let score_sums: number[] = [];
-    // sum the scores of all selected candidates for all categories
-    for (
-      let candidate_id_id = 0;
-      candidate_id_id < this.candidate_ids.length;
-      candidate_id_id++
-    ) {
-      const candidate_id = this.candidate_ids[candidate_id_id];
-      const scores = candidate_relative_distance_scores[candidate_id];
-      for (
-        let category_id = 0;
-        category_id < categories.length;
-        category_id++
-      ) {
-        score_sums[category_id] += scores[category_id];
-      }
-    }
-
-    // sum the square of the score_sums multiplied by the category weights
+function calculate_score(candidate_ids: number[]) {
+  let score_sums: number[] = [];
+  // sum the scores of all selected candidates for all categories
+  for (
+    let candidate_id_id = 0;
+    candidate_id_id < candidate_ids.length;
+    candidate_id_id++
+  ) {
+    const candidate_id = candidate_ids[candidate_id_id];
+    const scores = candidate_relative_distance_scores[candidate_id];
     for (let category_id = 0; category_id < categories.length; category_id++) {
-      this.score +=
-        score_sums[category_id] *
-        score_sums[category_id] *
-        category_weights[category_id];
+      score_sums[category_id] += scores[category_id];
     }
   }
+
+  // sum the square of the score_sums multiplied by the category weights
+  let score = 0;
+  for (let category_id = 0; category_id < categories.length; category_id++) {
+    score +=
+      score_sums[category_id] *
+      score_sums[category_id] *
+      category_weights[category_id];
+  }
+  return score;
 }
 
 // function to generate all combinations of length n of array
@@ -129,12 +121,12 @@ for (let candidate_id = 0; candidate_id < candidates.length; candidate_id++) {
 // calculate score for each combination and take the best one
 let min_distance: number = Infinity;
 let best_combination: number[] = [];
-combinationN(candidate_ids, 6).array.forEach((element) => {
-  const combination: Combination = new Combination();
-  combination.candidate_ids = element;
-  combination.calculate_score();
-  if (combination.score < min_distance) {
-    min_distance = combination.score;
-    best_combination = element;
+combinationN(candidate_ids, size_rat).array.forEach(
+  (candidate_ids: number[]) => {
+    const distance = calculate_score(candidate_ids);
+    if (distance < min_distance) {
+      min_distance = distance;
+      best_combination = [...candidate_ids];
+    }
   }
-});
+);
