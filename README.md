@@ -64,6 +64,14 @@ Jetzt kann man (inzwischen einfach via brute-force) alle Kombinationen bewerten,
   Vllt muss man irgendwelche Mengenoperationen machen und speichern wer mehreren Gruppen angehört oder so? Idk...
 - eventuell nicht mehr brute force benötigen, dazu klingt des iwie wie Knapsack Problem/dynamic programming adjacent oder so
 
+# Transparenz:
+
+gezeigt werden kann:
+
+- welche Keys wie viele token vergeben haben (und wie viele verwendet wurden) - maybe bubbles network welcher key wen gesigned hat
+- Die Scores für die Kandidaten (wer wen vertritt) - evtl nur für top 10 oder so - Balkendiagramm
+- dieses Repo mit klarem readme, gut kommentierter, klarer Code
+
 # Auth:
 
 Signing keys
