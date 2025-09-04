@@ -1,9 +1,7 @@
 let categories = ["Graz", "Wien", "Male", "Female", "City", "Land"];
 let candidates = ["x1", "x2", "x3", "x4", "x5", "x6"];
-let candidate_absolute_scores: number[][] = [[]];
+let candidate_absolute_scores: number[][] = [[]]; // [candidates][categories]
 let category_weights: number[] = [];
-type category = "Graz" | "Wien" | "Male" | "Female";
-type candidate = "x1" | "x2" | "x3" | "x4" | "x5" | "x6";
 let size_rat = 3;
 
 interface vote {
@@ -81,7 +79,7 @@ function calculate_score(candidate_ids: number[]) {
     const candidate_id = candidate_ids[candidate_id_id];
     const scores = candidate_relative_distance_scores[candidate_id];
     for (let category_id = 0; category_id < categories.length; category_id++) {
-      score_sums[category_id] += scores[category_id];
+      score_sums[category_id] += scores[category_id]; // TODO not sum of scores but minimum distance
     }
   }
 
