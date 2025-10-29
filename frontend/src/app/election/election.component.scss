@@ -1,0 +1,51 @@
+@use "../theme-colors" as gg-theme;
+
+/*** Common ***/
+
+mat-stepper {
+  width: fit-content;
+}
+
+/*** Step 1: Groups ***/
+
+.group-toggles-box {
+  display: flex;
+  flex-direction: column;
+}
+
+/*** Step 2: Candidates ***/
+
+.candidate-card-box {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  max-height: 425px;
+  margin: 20px 0;
+}
+
+.candidate-card {
+  margin-bottom: 15px;
+  max-height: 200px;
+  max-width: 300px;
+}
+
+.voted-candidate {
+  background-color: gg-theme.get-palette-color(gg-theme.$secondary-palette, 90);
+}
+
+.candidate-card:last-of-type {
+  margin: 0;
+}
+
+.desc-box {
+  background-color: white;
+  padding: 4px 0 4px 8px;
+  margin-top: 4px;
+}
+
+.desc-box-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+/*** Step 3: Review ***/

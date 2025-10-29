@@ -1,0 +1,102 @@
+<mat-stepper orientation="vertical" [linear]="true">
+  <mat-step [stepControl]="groupsFormGroup">
+    <form [formGroup]="groupsFormGroup">
+      <ng-template matStepLabel><h2>Welchen Gruppen fühlst du dich zugehörig?</h2></ng-template>
+      <div style="display: flex; justify-content: space-between;">
+        <div class="group-toggles-box">
+          @for ( group of groups; track group ) {
+            <mat-slide-toggle style="margin-bottom: 15px"
+                              [name]="group"
+                              [checked]="selectedGroups.includes(group)"
+                              (change)="groupToggled($event)"
+            >
+              {{ group }}
+            </mat-slide-toggle>
+          }
+          @if (groupsFormGroup.status !== 'VALID') {
+            <div class="error">
+              <mat-icon class="error-icon">error</mat-icon>
+              <p style="margin-left: 10px">Bitte wähle zumindest 1 Gruppe aus</p>
+            </div>
+          }
+        </div>
+        <div style="display: flex; align-items: end;">
+          <button matButton="filled" matStepperNext [disabled]="groupsFormGroup.status !== 'VALID'">Weiter</button>
+        </div>
+      </div>
+    </form>
+  </mat-step>
+  <mat-step [stepControl]="votesFormGroup">
+    <form [formGroup]="votesFormGroup">
+      <ng-template matStepLabel><h2>Von welchen Kandidaten fühlst du dich vertreten?</h2></ng-template>
+      <div class="candidate-card-box">
+        @for (candidate of candidates; track candidate.name) {
+          <mat-card class="candidate-card" [ngClass]="{'voted-candidate': this.votedCandidates.includes(candidate.name)}">
+            <mat-card-header style="justify-content: space-between">
+              <mat-card-title>{{ candidate.name }}</mat-card-title>
+              <mat-card-subtitle>{{ candidate.collective }}</mat-card-subtitle>
+
+              <mat-slide-toggle [name]="candidate.name"
+                                [checked]="votedCandidates.includes(candidate.name)"
+                                (change)="voteToggled($event)"
+              ></mat-slide-toggle>
+            </mat-card-header>
+            <mat-divider style="margin: 10px 0 5px"></mat-divider>
+            <mat-card-content>
+              <div class="desc-box">
+                <div class="desc-box-title">
+                  <p><b>Über mich</b></p>
+                  <button matIconButton (click)="showDesc.set(candidate.uuid, !showDesc.get(candidate.uuid))">
+                    <mat-icon>{{ showDesc.get(candidate.uuid) ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
+                  </button>
+                </div>
+                @if (showDesc.get(candidate.uuid)) {
+                  <p>{{ candidate.desc }}</p>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex;">
+          <button matButton="filled" matStepperPrevious>Zurück</button>
+        </div>
+        @if (votesFormGroup.status !== 'VALID') {
+          <div class="error" style="max-width: fit-content;">
+            <mat-icon class="error-icon">error</mat-icon>
+            <p style="margin-left: 10px">Bitte wähle zumindest 1 Kandidat:in aus</p>
+          </div>
+        }
+        <div style="display: flex; justify-content: end;">
+          <button matButton="filled" matStepperNext [disabled]="votesFormGroup.status !== 'VALID'">Weiter</button>
+        </div>
+      </div>
+    </form>
+  </mat-step>
+  <mat-step>
+    <ng-template matStepLabel><h2>Bitte kontrolliere deine Entscheidung bevor du sie abschickst</h2></ng-template>
+    <div style="display: flex; justify-content: space-between;">
+      <mat-list>
+        <div mat-subheader style="font-weight: bold">Zugehörige Gruppen</div>
+        @for (group of selectedGroups; track group) {
+          <mat-list-item>{{ group }}</mat-list-item>
+        }
+      </mat-list>
+      <mat-divider [vertical]="true" style="margin: 0 15px"></mat-divider>
+      <mat-list>
+        <div mat-subheader style="font-weight: bold">Gewählte Kandidaten</div>
+        @for (candidate of votedCandidates; track candidate) {
+          <mat-list-item>{{ candidate }}</mat-list-item>
+        }
+      </mat-list>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+      <button matButton="filled" matStepperPrevious>Zurück</button>
+      <button matButton="filled" (click)="submit()">
+        <mat-icon>how_to_vote</mat-icon>
+        Abschicken
+      </button>
+    </div>
+  </mat-step>
+</mat-stepper>

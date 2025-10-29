@@ -1,0 +1,20 @@
+/* You can add global styles to this file, and also import other style files */
+
+@use "app/theme-colors" as gg-theme;
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  border: 2px solid gg-theme.get-palette-color(gg-theme.$error-palette, 25);
+  background-color: gg-theme.get-palette-color(gg-theme.$error-palette, 80);
+  padding: 0 20px;
+  font-size: larger;
+  border-radius: 8px;
+  color: gg-theme.get-palette-color(gg-theme.$error-palette, 30);
+}
