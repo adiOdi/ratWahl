@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, model, ModelSignal, OnDestroy, OnInit, signal, Signal, WritableSignal} from '@angular/core';
 import {MatStep, MatStepLabel, MatStepper, MatStepperNext, MatStepperPrevious} from '@angular/material/stepper';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {FormBuilder, ReactiveFormsModule} from '@angular/forms';
@@ -11,6 +11,9 @@ import {MatSlideToggle, MatSlideToggleChange} from '@angular/material/slide-togg
 import {CustomValidators} from '../shared/CustomValidators';
 import {NgClass} from '@angular/common';
 import {MatList, MatListItem, MatListSubheaderCssMatStyler} from '@angular/material/list';
+import {ElectionResourceService} from './election-resource.service';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {map, Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-election',
@@ -36,12 +39,12 @@ import {MatList, MatListItem, MatListSubheaderCssMatStyler} from '@angular/mater
     MatListItem,
     MatListSubheaderCssMatStyler,
     MatStepperPrevious,
-
   ],
+  providers: [ElectionResourceService],
   templateUrl: './election.component.html',
   styleUrl: './election.component.scss',
 })
-export class ElectionComponent {
+export class ElectionComponent implements OnInit, OnDestroy {
   _formBuilder = inject(FormBuilder);
 
   groupsFormGroup = this._formBuilder.group({
@@ -51,19 +54,24 @@ export class ElectionComponent {
     votes: [[] as string[], CustomValidators.arrayNotEmpty]
   });
 
-  // TODO get these two arrays from a service
-  groups = ['Wien', 'Graz', 'Linz', 'Queer', 'Städtisch', 'Ländlich'];
-  candidates: Candidate[] = [
-    { uuid: 'a54b75e9-1135-46a8-a615-fbfa4f4ac785', name: 'Cand1', desc: 'I am #1', collective: 'Graz' },
-    { uuid: 'c5c50c06-2537-4788-a77a-06205f445ad2', name: 'Cand2', desc: 'Twice as good', collective: 'Wien' },
-    { uuid: 'e3fcaeef-cf79-4623-9bb6-e4da4c115720', name: 'Cand3', desc: 'Three\'s a charm', collective: 'Linz' },
-    { uuid: '318951f4-1f29-476a-9b49-a7d0dc52783f', name: 'Cand4', desc: 'Last but not least', collective: 'Graz' },
-  ];
+  groups: Signal<string[]>;
+  candidates: Signal<Candidate[]>;
+  voteLocked: WritableSignal<boolean> = signal(true);
 
-  showDesc: Map<string, boolean> = new Map(this.candidates.map(c => [c.uuid, false]));
+  showDesc: Map<string, boolean>;
 
   private _selectedGroups: string[] = [];
   private _votedCandidates: string[] = [];
+
+  private electionResource = inject(ElectionResourceService);
+
+  private subscriptions: Subscription[] = [];
+
+  constructor() {
+    this.groups = toSignal(this.electionResource.groups(), { initialValue: [] });
+    this.candidates = toSignal(this.electionResource.candidates(), { initialValue: [] });
+    this.showDesc = new Map(this.candidates().map(c => [c.uuid, false]));
+  }
 
   get selectedGroups(): string[] {
     return this._selectedGroups
@@ -85,6 +93,16 @@ export class ElectionComponent {
     this._votedCandidates = val ? val[0] as unknown as string[] : [];
   }
 
+  ngOnInit() {
+    this.subscriptions.push(
+      this.electionResource.isAllowed().subscribe(isAllowed => this.voteLocked.set(!isAllowed)),
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
   groupToggled(event: MatSlideToggleChange) {
     if(!event.checked) {
       this.selectedGroups = this.selectedGroups.filter(group => group !== event.source.name);
@@ -102,6 +120,8 @@ export class ElectionComponent {
   }
 
   submit() {
+    this.voteLocked.set(true);
     console.log('submit vote', this.selectedGroups, this.votedCandidates);
+    // TODO submit
   }
 }

@@ -19,22 +19,18 @@ mat-stepper {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+  gap: 20px;
   max-height: 425px;
   margin: 20px 0;
 }
 
 .candidate-card {
-  margin-bottom: 15px;
   max-height: 200px;
   max-width: 300px;
 }
 
 .voted-candidate {
   background-color: gg-theme.get-palette-color(gg-theme.$secondary-palette, 90);
-}
-
-.candidate-card:last-of-type {
-  margin: 0;
 }
 
 .desc-box {

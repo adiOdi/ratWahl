@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
+@use "@angular/material" as mat;
 @use "app/theme-colors" as gg-theme;
 
 html, body { height: 100%; }
@@ -17,4 +18,12 @@ body {
   font-size: larger;
   border-radius: 8px;
   color: gg-theme.get-palette-color(gg-theme.$error-palette, 30);
+}
+
+:root {
+  @include mat.toolbar-overrides((
+    container-background-color: gg-theme.get-palette-color(gg-theme.$primary-palette, 40),
+    container-text-color: gg-theme.get-palette-color(gg-theme.$neutral-palette, 96),
+    title-text-weight: bold,
+  ));
 }

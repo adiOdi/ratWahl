@@ -1,0 +1,48 @@
+<mat-toolbar>
+  <span>Wahlergebnisse</span>
+  <div class="election-select">
+    <span>{{ election }}</span>
+    <button matIconButton
+            [matMenuTriggerFor]="electionSelection"
+            (menuOpened)="menuButtonIcon = 'arrow_drop_up'"
+            (menuClosed)="menuButtonIcon = 'arrow_drop_down'"
+    >
+      <mat-icon>{{ menuButtonIcon }}</mat-icon>
+    </button>
+    <mat-menu #electionSelection="matMenu">
+      @for (e of elections; track e) {
+        <button mat-menu-item (click)="election = e">{{ e }}</button>
+      }
+    </mat-menu>
+  </div>
+</mat-toolbar>
+<mat-sidenav-container>
+  <mat-sidenav mode="side" opened>
+    <div class="sidemenu">
+      <button matButton (click)="view = 'participation'">Wahlbeteiligung</button>
+      <mat-divider></mat-divider>
+      <button matButton (click)="view = 'results'">Ergebnisse</button>
+      <mat-divider></mat-divider>
+      <button matButton (click)="view = 'statistics'">Statistiken</button>
+      <mat-divider></mat-divider>
+      <button matButton (click)="view = 'about'">Über die Wahl</button>
+      <mat-divider></mat-divider>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    @switch (view) {
+      @case ('participation') {
+        <app-participation></app-participation>
+      }
+      @case ('results') {
+        <app-results></app-results>
+      }
+      @case ('statistics') {
+        <app-statistics></app-statistics>
+      }
+      @case ('about') {
+        <app-about></app-about>
+      }
+    }
+  </mat-sidenav-content>
+</mat-sidenav-container>
