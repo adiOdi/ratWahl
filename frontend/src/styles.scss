@@ -26,4 +26,8 @@ body {
     container-text-color: gg-theme.get-palette-color(gg-theme.$neutral-palette, 96),
     title-text-weight: bold,
   ));
+
+  @include mat.table-overrides((
+    background-color: gg-theme.get-palette-color(gg-theme.$primary-palette, 95),
+  ))
 }

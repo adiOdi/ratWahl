@@ -5,11 +5,11 @@
       <ng-template matStepLabel><h2>Welchen Gruppen fühlst du dich zugehörig?</h2></ng-template>
       <div style="display: flex; justify-content: space-between;">
         <div class="group-toggles-box">
-          @for ( group of groups(); track group ) {
+          @for ( group of groups(); track group.uuid ) {
             <mat-slide-toggle style="margin-bottom: 15px"
-                              [name]="group"
+                              [name]="group.name"
                               [disabled]="voteLocked()"
-                              [checked]="selectedGroups.includes(group)"
+                              [checked]="selectedGroups.includes(group.name)"
                               (change)="groupToggled($event)"
             >
               {{ group }}
@@ -37,7 +37,7 @@
           <mat-card class="candidate-card" [ngClass]="{'voted-candidate': this.votedCandidates.includes(candidate.name)}">
             <mat-card-header style="justify-content: space-between">
               <mat-card-title>{{ candidate.name }}</mat-card-title>
-              <mat-card-subtitle>{{ candidate.collective }}</mat-card-subtitle>
+              <mat-card-subtitle>{{ candidate.localGroup }}</mat-card-subtitle>
 
               <mat-slide-toggle [name]="candidate.name"
                                 [disabled]="voteLocked()"

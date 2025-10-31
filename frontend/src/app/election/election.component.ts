@@ -1,4 +1,4 @@
-import {Component, inject, model, ModelSignal, OnDestroy, OnInit, signal, Signal, WritableSignal} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, signal, Signal, WritableSignal} from '@angular/core';
 import {MatStep, MatStepLabel, MatStepper, MatStepperNext, MatStepperPrevious} from '@angular/material/stepper';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {FormBuilder, ReactiveFormsModule} from '@angular/forms';
@@ -11,9 +11,12 @@ import {MatSlideToggle, MatSlideToggleChange} from '@angular/material/slide-togg
 import {CustomValidators} from '../shared/CustomValidators';
 import {NgClass} from '@angular/common';
 import {MatList, MatListItem, MatListSubheaderCssMatStyler} from '@angular/material/list';
-import {ElectionResourceService} from './election-resource.service';
+import {ElectionResourceService} from '../shared/service/election-resource.service';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {map, Subscription} from 'rxjs';
+import {Group} from '../shared/model/group';
+
+const dummyElectionUUID = 'b9bd82b4-a1e5-4563-9554-f85b9d0c3d6e';
 
 @Component({
   selector: 'app-election',
@@ -40,7 +43,6 @@ import {map, Subscription} from 'rxjs';
     MatListSubheaderCssMatStyler,
     MatStepperPrevious,
   ],
-  providers: [ElectionResourceService],
   templateUrl: './election.component.html',
   styleUrl: './election.component.scss',
 })
@@ -54,7 +56,7 @@ export class ElectionComponent implements OnInit, OnDestroy {
     votes: [[] as string[], CustomValidators.arrayNotEmpty]
   });
 
-  groups: Signal<string[]>;
+  groups: Signal<Group[]>;
   candidates: Signal<Candidate[]>;
   voteLocked: WritableSignal<boolean> = signal(true);
 
@@ -68,8 +70,8 @@ export class ElectionComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   constructor() {
-    this.groups = toSignal(this.electionResource.groups(), { initialValue: [] });
-    this.candidates = toSignal(this.electionResource.candidates(), { initialValue: [] });
+    this.groups = toSignal(this.electionResource.election(dummyElectionUUID).pipe(map(e => e?.groups || [])), { initialValue: [] });
+    this.candidates = toSignal(this.electionResource.election(dummyElectionUUID).pipe(map(e => e?.candidates || [])), { initialValue: [] });
     this.showDesc = new Map(this.candidates().map(c => [c.uuid, false]));
   }
 
