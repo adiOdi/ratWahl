@@ -1,0 +1,57 @@
+@use "@angular/material" as mat;
+@use "../theme-colors" as gg-theme;
+
+/*** Commons ***/
+
+mat-toolbar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.election-select {
+  display: flex;
+  align-items: center;
+}
+
+.election-select * {
+  color: gg-theme.get-palette-color(gg-theme.$neutral-palette, 96);
+  font-size: smaller;
+}
+
+.election-select > span {
+  font-size: small;
+}
+
+.election-select mat-icon {
+  display: flex;
+  align-items: center;
+}
+
+mat-sidenav-container {
+  height: 100%;
+}
+
+/*** Menu ***/
+
+mat-sidenav {
+  border-right: 1px solid;
+  border-radius: 0;
+  width: fit-content;
+}
+
+.sidemenu {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidemenu > button {
+  border-radius: 0;
+  padding: 24px 32px;
+  font-size: larger;
+}
+
+/*** Content ***/
+
+mat-sidenav-content {
+
+}
