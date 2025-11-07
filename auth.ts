@@ -37,7 +37,7 @@ function sign_key(
   key_id: string,
   key: string,
   new_key_id: string,
-  new_key: string
+  new_key: string,
 ) {
   if (find_key(key_id).key != key) {
     throw "wrong key for signing";
@@ -66,4 +66,9 @@ function check_key(key_id: string): boolean {
   const key = find_key(key_id);
   check_key(key.signed_by);
   return key.hash == hash(find_key(key.signed_by).key + key_id);
+}
+
+function key_exists(key_id: string): boolean {
+  if
+  return true;
 }
