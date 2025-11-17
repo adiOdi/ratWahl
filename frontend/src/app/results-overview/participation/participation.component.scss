@@ -1,14 +1,3 @@
-@use "../../theme-colors" as gg-theme;
-
-mat-header-row {
-  background-color: gg-theme.get-palette-color(gg-theme.$primary-palette, 30);
-  color: gg-theme.get-palette-color(gg-theme.$neutral-palette, 96)
-}
-
-mat-footer-row {
-  background-color: gg-theme.get-palette-color(gg-theme.$secondary-palette, 90);
-}
-
-.mat-column-localGroup, mat-header-row * {
+.mat-column-localGroup {
   font-weight: bold;
 }

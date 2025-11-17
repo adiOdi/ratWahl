@@ -1,47 +1,47 @@
 <mat-toolbar>
   <span>Wahlergebnisse</span>
-  <div class="election-select">
-    <span>{{ election()?.name }}</span>
-    <button matIconButton
-            [matMenuTriggerFor]="electionSelection"
-            (menuOpened)="menuButtonIcon = 'arrow_drop_up'"
-            (menuClosed)="menuButtonIcon = 'arrow_drop_down'"
-    >
-      <mat-icon>{{ menuButtonIcon }}</mat-icon>
-    </button>
-    <mat-menu #electionSelection="matMenu">
-      @for (e of elections(); track e.uuid) {
-        <button mat-menu-item (click)="election = e">{{ e.name }}</button>
-      }
-    </mat-menu>
-  </div>
+  @if (election()) {
+    <div class="election-select">
+      <button matButton
+              [matMenuTriggerFor]="electionSelection"
+              (menuOpened)="menuButtonIcon = 'arrow_drop_up'"
+              (menuClosed)="menuButtonIcon = 'arrow_drop_down'">
+        <span>{{ election()?.name }}</span>
+        <mat-icon>{{ menuButtonIcon }}</mat-icon>
+      </button>
+      <mat-menu #electionSelection="matMenu">
+        @for (e of elections(); track e.uuid) {
+          <button mat-menu-item (click)="election = e">{{ e.name }}</button>
+        }
+      </mat-menu>
+    </div>
+  }
 </mat-toolbar>
 <mat-sidenav-container>
   <mat-sidenav mode="side" opened>
     <div class="sidemenu">
-      <button matButton (click)="view = 'participation'">Wahlbeteiligung</button>
+      <button matButton (click)="currentView.set(view.PARTICIPATION)">Wahlbeteiligung</button>
+      @if (election()?.result) {
+        <mat-divider></mat-divider>
+        <button matButton (click)="currentView.set(view.RESULTS)">Ergebnisse</button>
+      }
       <mat-divider></mat-divider>
-      <button matButton (click)="view = 'results'">Ergebnisse</button>
-      <mat-divider></mat-divider>
-      <button matButton (click)="view = 'statistics'">Statistiken</button>
-      <mat-divider></mat-divider>
-      <button matButton (click)="view = 'about'">Über die Wahl</button>
+      <button matButton (click)="currentView.set(view.ABOUT)">Über die Wahl</button>
       <mat-divider></mat-divider>
     </div>
   </mat-sidenav>
   <mat-sidenav-content>
     @if (election()) {
-      @switch (view) {
-        @case ('participation') {
-          <app-participation [tokenByLocalGroup]="election()?.tokenByLocalGroup ?? []"></app-participation>
+      @switch (currentView()) {
+        @case (view.PARTICIPATION) {
+          <app-participation [groups]="election()!.groups | localGroups"></app-participation>
         }
-        @case ('results') {
-          <app-results></app-results>
+        @case (view.RESULTS) {
+          @if (election()?.result) {
+            <app-results [electionResult]="election()!.result!"></app-results>
+          }
         }
-        @case ('statistics') {
-          <app-statistics></app-statistics>
-        }
-        @case ('about') {
+        @case (view.ABOUT) {
           <app-about></app-about>
         }
       }

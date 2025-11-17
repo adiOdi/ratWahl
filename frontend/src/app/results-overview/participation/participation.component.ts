@@ -1,20 +1,23 @@
-import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, computed, input} from '@angular/core';
 import {
   MatCell,
   MatCellDef,
-  MatColumnDef, MatFooterCell, MatFooterCellDef, MatFooterRow, MatFooterRowDef,
+  MatColumnDef,
+  MatFooterCell,
+  MatFooterCellDef,
+  MatFooterRow,
+  MatFooterRowDef,
   MatHeaderCell,
   MatHeaderCellDef,
-  MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow,
+  MatRowDef,
   MatTable
 } from '@angular/material/table';
 import {DecimalPipe} from '@angular/common';
-
-export interface LocalGroupParticipation {
-  localGroup: string;
-  tokenCreated: number;
-  votes: number;
-}
+import {LocalGroup} from '../../shared/model/group';
+import {sum} from '../../shared/util/reducers';
 
 @Component({
   selector: 'app-participation',
@@ -38,22 +41,17 @@ export interface LocalGroupParticipation {
   templateUrl: './participation.component.html',
   styleUrl: './participation.component.scss',
 })
-export class ParticipationComponent implements OnChanges {
+export class ParticipationComponent {
 
-  @Input({ required: true }) tokenByLocalGroup: LocalGroupParticipation[] = [];
+  groups = input.required<LocalGroup[]>();
+  dataSource = computed(() =>
+    this.groups().map(g => ({ ...g, participation: g.members / g.tokenCreated * 100 }))
+  );
+  footer = computed(() => {
+    const tokenCreated = this.groups().map(g => g.tokenCreated).reduce(sum);
+    const members = this.groups().map(g => g.members).reduce(sum);
+    return { label: 'Gesamt', tokenCreated, members, participation: members / tokenCreated * 100 };
+  });
 
   displayedColumns = ['localGroup', 'tokenCreated', 'votes', 'participation'];
-  totalTokenCreated = 0;
-  totalVotes = 0;
-  totalParticipation = 0;
-
-  ngOnChanges(changes: SimpleChanges) {
-    this.totalTokenCreated = this.tokenByLocalGroup
-      .map(data => data.tokenCreated)
-      .reduce((prev, cur) => prev + cur);
-    this.totalVotes = this.tokenByLocalGroup
-      .map(data => data.votes)
-      .reduce((prev, cur) => prev + cur);
-    this.totalParticipation = this.totalVotes / this.totalTokenCreated * 100;
-  }
 }

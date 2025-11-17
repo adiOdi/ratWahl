@@ -1,19 +1,10 @@
-import {Candidate} from './candidate';
+import {Candidate, Elective} from './candidate';
 import {Group} from './group';
-import {LocalGroupParticipation} from '../../results-overview/participation/participation.component';
 
-export interface Election {
-  uuid: string;
-  name: string;
-  groups: Group[];
+export interface Election extends ElectionMetadata {
   candidates: Candidate[];
-  tokenByLocalGroup?: LocalGroupParticipation[];
+  groups: Group[];
   result?: ElectionResult;
-}
-
-export interface ElectionResult {
-  electives: Candidate[];
-  representation: {};
 }
 
 export interface ElectionMetadata {
@@ -21,6 +12,7 @@ export interface ElectionMetadata {
   name: string;
 }
 
-export function localGroups(groups: Group[]) {
-  return groups.filter(g => g.isLocalGroup);
+export interface ElectionResult {
+  electives: Elective[];
+  overallRepresentation: Map<Group, number>;
 }

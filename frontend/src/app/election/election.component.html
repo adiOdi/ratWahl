@@ -1,3 +1,22 @@
+<mat-toolbar>
+  <span>{{ election()?.name }}</span>
+</mat-toolbar>
+<mat-card appearance="raised">
+  <mat-card-header>
+    <mat-card-title>Vielen Dank dass du an unserer Wahl teilnimmst!</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (localGroup()) {
+      <p>
+        Du nimmst als Teil des Kollektivs <b>{{ localGroup()?.name }}</b> teil.
+        Alle Infos findest du hier:
+      </p>
+      <a matButton [href]="`${NAV_RESULTS}?show=${view.PARTICIPATION}`">Wahlbeteiligung</a>
+      <a matButton [href]="`${NAV_RESULTS}?show=${view.RESULTS}`" [disabled]="!election()?.result">Ergebnisse</a>
+      <a matButton [href]="`${NAV_RESULTS}?show=${view.ABOUT}`">Über die Wahl</a>
+    }
+  </mat-card-content>
+</mat-card>
 <mat-stepper orientation="vertical" [linear]="true">
   <!-- step 1: choosing groups -->
   <mat-step [stepControl]="groupsFormGroup">
@@ -12,7 +31,7 @@
                               [checked]="selectedGroups.includes(group.name)"
                               (change)="groupToggled($event)"
             >
-              {{ group }}
+              {{ group.name }}
             </mat-slide-toggle>
           }
           @if (groupsFormGroup.status !== 'VALID') {
@@ -37,7 +56,7 @@
           <mat-card class="candidate-card" [ngClass]="{'voted-candidate': this.votedCandidates.includes(candidate.name)}">
             <mat-card-header style="justify-content: space-between">
               <mat-card-title>{{ candidate.name }}</mat-card-title>
-              <mat-card-subtitle>{{ candidate.localGroup }}</mat-card-subtitle>
+              <mat-card-subtitle>{{ candidate.localGroup.name }}</mat-card-subtitle>
 
               <mat-slide-toggle [name]="candidate.name"
                                 [disabled]="voteLocked()"
@@ -50,11 +69,11 @@
               <div class="desc-box">
                 <div class="desc-box-title">
                   <p><b>Über mich</b></p>
-                  <button matIconButton (click)="showDesc.set(candidate.uuid, !showDesc.get(candidate.uuid))">
-                    <mat-icon>{{ showDesc.get(candidate.uuid) ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
+                  <button matIconButton (click)="showDesc().set(candidate.uuid, !showDesc().get(candidate.uuid))">
+                    <mat-icon>{{ showDesc().get(candidate.uuid) ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
                   </button>
                 </div>
-                @if (showDesc.get(candidate.uuid)) {
+                @if (showDesc().get(candidate.uuid)) {
                   <p>{{ candidate.desc }}</p>
                 }
               </div>
