@@ -5,3 +5,12 @@ mat-expansion-panel {
 .mat-column-elective {
   font-weight: bold;
 }
+
+.charts-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.chart-box {
+  width: 40vw;
+}

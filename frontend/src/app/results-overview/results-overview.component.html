@@ -34,7 +34,7 @@
     @if (election()) {
       @switch (currentView()) {
         @case (view.PARTICIPATION) {
-          <app-participation [groups]="election()!.groups | localGroups"></app-participation>
+          <app-participation [localGroups]="localGroups()"></app-participation>
         }
         @case (view.RESULTS) {
           @if (election()?.result) {

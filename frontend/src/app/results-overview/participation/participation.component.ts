@@ -16,8 +16,9 @@ import {
   MatTable
 } from '@angular/material/table';
 import {DecimalPipe} from '@angular/common';
-import {LocalGroup} from '../../shared/model/group';
 import {sum} from '../../shared/util/reducers';
+import {Group} from '../../shared/model/group';
+import {LocalGroup} from '../../shared/model/local-group';
 
 @Component({
   selector: 'app-participation',
@@ -43,13 +44,13 @@ import {sum} from '../../shared/util/reducers';
 })
 export class ParticipationComponent {
 
-  groups = input.required<LocalGroup[]>();
+  localGroups = input.required<LocalGroup[]>();
   dataSource = computed(() =>
-    this.groups().map(g => ({ ...g, participation: g.members / g.tokenCreated * 100 }))
+    this.localGroups().map(g => ({ ...g, participation: g.voted / g.tokenCreated * 100 }))
   );
   footer = computed(() => {
-    const tokenCreated = this.groups().map(g => g.tokenCreated).reduce(sum);
-    const members = this.groups().map(g => g.members).reduce(sum);
+    const tokenCreated = this.localGroups().map(g => g.tokenCreated).reduce(sum);
+    const members = this.localGroups().map(g => g.voted).reduce(sum);
     return { label: 'Gesamt', tokenCreated, members, participation: members / tokenCreated * 100 };
   });
 

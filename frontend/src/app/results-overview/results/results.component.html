@@ -23,4 +23,28 @@
 
 </mat-table>
 
-<!--<canvas baseChart [data]="barChart()" type="bar"></canvas>-->
+<div class="charts-wrapper">
+  <div class="chart-box">
+    <canvas baseChart
+            type="bar"
+            [data]="barChart()"
+            [options]="barChartOptions"
+    ></canvas>
+  </div>
+
+  <div class="chart-box">
+    <canvas baseChart
+            type="polarArea"
+            [data]="polarAreaChart()"
+    ></canvas>
+  </div>
+
+  <div class="chart-box">
+    <canvas baseChart
+            type="doughnut"
+            [data]="doughnutChart()"
+    ></canvas>
+  </div>
+</div>
+
+<!-- TODO polar area chart, doughnut chart? -->

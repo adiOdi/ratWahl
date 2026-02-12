@@ -1,4 +1,5 @@
-import {Group, LocalGroup} from './group';
+import {Group} from './group';
+import {LocalGroup} from './local-group';
 
 export interface Candidate {
   uuid: string;

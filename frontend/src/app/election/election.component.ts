@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {MatStep, MatStepLabel, MatStepper, MatStepperNext, MatStepperPrevious} from '@angular/material/stepper';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {FormBuilder, ReactiveFormsModule} from '@angular/forms';
@@ -12,8 +12,7 @@ import {NgClass} from '@angular/common';
 import {MatList, MatListItem, MatListSubheaderCssMatStyler} from '@angular/material/list';
 import {ElectionResourceService} from '../shared/service/election-resource.service';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {of, Subscription, switchMap} from 'rxjs';
-import {isLocalGroup} from '../shared/pipes/local-groups.pipe';
+import {of, switchMap} from 'rxjs';
 import {LOC_STORAGE_ELECTION_UUID, LOC_STORAGE_GROUP_UUID} from '../shared/constants';
 import {MatToolbar} from '@angular/material/toolbar';
 import {NAV_RESULTS} from '../app.routes';
@@ -70,8 +69,6 @@ export class ElectionComponent {
       return this.electionResource.election(uuid);
     }),
   ));
-  groups = computed(() =>
-    this.election()?.groups.filter(g => !isLocalGroup(g)) || []);
   candidates = computed(() =>
     this.election()?.candidates || []);
   showDesc = computed(() =>

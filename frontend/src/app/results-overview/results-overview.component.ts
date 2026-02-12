@@ -1,6 +1,6 @@
-import {Component, inject, OnDestroy, OnInit, signal, Signal, WritableSignal} from '@angular/core';
+import {Component, computed, inject, OnDestroy, OnInit, signal, Signal, WritableSignal} from '@angular/core';
 import {MatSidenav, MatSidenavContainer, MatSidenavContent} from '@angular/material/sidenav';
-import {MatButton, MatIconButton} from '@angular/material/button';
+import {MatButton} from '@angular/material/button';
 import {MatDivider} from '@angular/material/divider';
 import {ParticipationComponent} from './participation/participation.component';
 import {ResultsComponent} from './results/results.component';
@@ -12,7 +12,6 @@ import {ElectionResourceService} from '../shared/service/election-resource.servi
 import {Election, ElectionMetadata} from '../shared/model/election';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {Subscription, take, tap} from 'rxjs';
-import {LocalGroupsPipe} from '../shared/pipes/local-groups.pipe';
 import {ActivatedRoute} from '@angular/router';
 import {LOC_STORAGE_ELECTION_UUID, PARAM_ELECTION, PARAM_VIEW} from '../shared/constants';
 
@@ -34,12 +33,10 @@ export enum View {
     ResultsComponent,
     AboutComponent,
     MatToolbar,
-    MatIconButton,
     MatMenuTrigger,
     MatIcon,
     MatMenu,
     MatMenuItem,
-    LocalGroupsPipe,
   ],
   templateUrl: './results-overview.component.html',
   styleUrl: './results-overview.component.scss'
@@ -51,6 +48,7 @@ export class ResultsOverviewComponent implements OnInit, OnDestroy {
   view: typeof View = View;
 
   elections: Signal<ElectionMetadata[]>;
+  localGroups = toSignal(this.electionResource.localGroups(), { initialValue: [] });
 
   currentView = signal(View.PARTICIPATION);
   menuButtonIcon = 'arrow_drop_down';

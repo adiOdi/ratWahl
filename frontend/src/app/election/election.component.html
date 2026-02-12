@@ -24,7 +24,7 @@
       <ng-template matStepLabel><h2>Welchen Gruppen fühlst du dich zugehörig?</h2></ng-template>
       <div style="display: flex; justify-content: space-between;">
         <div class="group-toggles-box">
-          @for ( group of groups(); track group.uuid ) {
+          @for ( group of election()?.groups; track group.uuid ) {
             <mat-slide-toggle style="margin-bottom: 15px"
                               [name]="group.name"
                               [disabled]="voteLocked()"
