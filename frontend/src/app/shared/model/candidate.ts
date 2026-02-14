@@ -1,8 +1,13 @@
+import {Group} from './group';
+import {LocalGroup} from './local-group';
+
 export interface Candidate {
   uuid: string;
   name: string;
   desc: string;
-  collective: Collective;
+  localGroup: LocalGroup;
 }
 
-export type Collective = 'Graz' | 'Wien' | 'Linz';
+export interface Elective extends Candidate {
+  representedGroups: Map<Group, number>;
+}

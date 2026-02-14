@@ -3,19 +3,23 @@
 
 /*** Commons ***/
 
-mat-toolbar {
+.election-select > button {
   display: flex;
-  justify-content: space-between;
+  flex-direction: row-reverse;
 }
 
-.election-select {
+.election-select > button > mat-icon {
+  margin-right: -4px;
+  margin-left: 8px;
+}
+
+/*.election-select {
   display: flex;
   align-items: center;
 }
 
 .election-select * {
   color: gg-theme.get-palette-color(gg-theme.$neutral-palette, 96);
-  font-size: smaller;
 }
 
 .election-select > span {
@@ -25,7 +29,7 @@ mat-toolbar {
 .election-select mat-icon {
   display: flex;
   align-items: center;
-}
+}*/
 
 mat-sidenav-container {
   height: 100%;
@@ -53,5 +57,5 @@ mat-sidenav {
 /*** Content ***/
 
 mat-sidenav-content {
-
+  padding: 24px 32px;
 }

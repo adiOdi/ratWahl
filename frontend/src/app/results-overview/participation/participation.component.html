@@ -1,1 +1,39 @@
-<h1>participation</h1>
+<h1>Wahlbeteiligung</h1>
+
+<mat-table [dataSource]="dataSource()" >
+
+  <!-- local group column -->
+  <ng-container matColumnDef="localGroup">
+    <mat-header-cell *matHeaderCellDef> Kollektiv </mat-header-cell>
+    <mat-cell *matCellDef="let element"> {{ element.name }} </mat-cell>
+    <mat-footer-cell *matFooterCellDef><b>Gesamt</b></mat-footer-cell>
+  </ng-container>
+
+  <!-- token created column -->
+  <ng-container matColumnDef="tokenCreated">
+    <mat-header-cell *matHeaderCellDef> Stimmberechtigte </mat-header-cell>
+    <mat-cell *matCellDef="let element"> {{ element.tokenCreated }}</mat-cell>
+    <mat-footer-cell *matFooterCellDef><b>{{ footer().tokenCreated }}</b></mat-footer-cell>
+  </ng-container>
+
+  <!-- votes column -->
+  <ng-container matColumnDef="votes">
+    <mat-header-cell *matHeaderCellDef> Abgegebene Stimmen </mat-header-cell>
+    <mat-cell *matCellDef="let element">{{ element.members }}</mat-cell>
+    <mat-footer-cell *matFooterCellDef><b>{{ footer().members }}</b></mat-footer-cell>
+  </ng-container>
+
+  <!-- participation column -->
+  <ng-container matColumnDef="participation">
+    <mat-header-cell *matHeaderCellDef> Beteiligung </mat-header-cell>
+    <mat-cell *matCellDef="let element">
+      {{ element.participation | number: '1.2-2' }}%
+    </mat-cell>
+    <mat-footer-cell *matFooterCellDef><b>{{ footer().participation | number: '1.2-2' }}%</b></mat-footer-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  <mat-footer-row *matFooterRowDef="displayedColumns"></mat-footer-row>
+
+</mat-table>

@@ -1,1 +1,50 @@
-<h1>results</h1>
+<h1>Ergebnisse</h1>
+
+<h2>Repräsentation der gewählten Kandidaten</h2>
+<mat-table [dataSource]="electionResult().electives">
+
+  <ng-container matColumnDef="elective">
+    <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+    <mat-cell *matCellDef="let element">{{ element.name }}</mat-cell>
+    <mat-footer-cell *matFooterCellDef><b>Gesamt</b></mat-footer-cell>
+  </ng-container>
+
+  @for (group of groups(); track group.uuid) {
+    <ng-container [matColumnDef]="group.name">
+      <mat-header-cell *matHeaderCellDef>{{ group.name }}</mat-header-cell>
+      <mat-cell *matCellDef="let element">{{ element.representedGroups.get(group) | number: '1.2-2' }}%</mat-cell>
+      <mat-footer-cell *matFooterCellDef><b>{{ electionResult().overallRepresentation.get(group) | number: '1.2-2' }}%</b></mat-footer-cell>
+    </ng-container>
+  }
+
+  <mat-header-row *matHeaderRowDef="columnNames()"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: columnNames()"></mat-row>
+  <mat-footer-row *matFooterRowDef="columnNames()"></mat-footer-row>
+
+</mat-table>
+
+<div class="charts-wrapper">
+  <div class="chart-box">
+    <canvas baseChart
+            type="bar"
+            [data]="barChart()"
+            [options]="barChartOptions"
+    ></canvas>
+  </div>
+
+  <div class="chart-box">
+    <canvas baseChart
+            type="polarArea"
+            [data]="polarAreaChart()"
+    ></canvas>
+  </div>
+
+  <div class="chart-box">
+    <canvas baseChart
+            type="doughnut"
+            [data]="doughnutChart()"
+    ></canvas>
+  </div>
+</div>
+
+<!-- TODO polar area chart, doughnut chart? -->

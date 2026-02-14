@@ -20,10 +20,32 @@ body {
   color: gg-theme.get-palette-color(gg-theme.$error-palette, 30);
 }
 
+mat-toolbar {
+  display: flex;
+  justify-content: space-between;
+}
+
+mat-header-row {
+  background-color: gg-theme.get-palette-color(gg-theme.$primary-palette, 30) !important;
+  color: gg-theme.get-palette-color(gg-theme.$neutral-palette, 96) !important;
+}
+
+mat-footer-row {
+  background-color: gg-theme.get-palette-color(gg-theme.$secondary-palette, 90) !important;
+}
+
+mat-header-row * {
+  font-weight: bold !important;
+}
+
 :root {
   @include mat.toolbar-overrides((
     container-background-color: gg-theme.get-palette-color(gg-theme.$primary-palette, 40),
     container-text-color: gg-theme.get-palette-color(gg-theme.$neutral-palette, 96),
     title-text-weight: bold,
   ));
+
+  @include mat.table-overrides((
+    background-color: gg-theme.get-palette-color(gg-theme.$primary-palette, 95),
+  ))
 }
