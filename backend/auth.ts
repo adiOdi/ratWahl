@@ -1,3 +1,34 @@
+import { createClient } from 'redis';
+const client = createClient();
+await client.connect();
+
+async function add_token(election_id: string, token: string): Promise<boolean> {
+  if (await client.hGet(election_id, token)) {
+    return false;
+  }
+  await client.hSet(election_id, token, "valid");
+  return true;
+}
+
+async function use_token(election_id: string, token: string, vote_data: string): Promise<boolean> {
+  const content = await client.hGet(election_id, token).then((value) => {
+    if (value === "valid") {
+      client.hSet(election_id, token, vote_data);
+      return true
+    } else {
+      return false
+    }
+  });
+  return !!content;
+}
+const election_id = "e1"
+await client.hGet(election_id, "adri").then(console.log);
+await add_token(election_id, "adri");
+await client.hGet(election_id, "adri").then(console.log);
+await use_token(election_id, "adri", "vote_data").then(console.log);
+await client.hGet(election_id, "adri").then(console.log);
+
+
 function hash(input: string) {
   return input + "hash";
 }
@@ -80,3 +111,5 @@ function check_key(key_id: string): boolean {
 function key_exists(key_id: string): boolean {
   return keys.some((key: Key) => key.key_id === key_id);
 }
+
+await client.quit();

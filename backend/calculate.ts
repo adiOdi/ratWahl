@@ -1,14 +1,31 @@
+import { createClient } from 'redis';
+const client = createClient();
+await client.connect();
+
 // Define the categories and candidates for the voting system
 let categories = ["Graz", "Wien", "Male", "Female", "City", "Land"];
 let candidates = ["x0", "x1", "x2", "x3", "x4", "x5", "x6"];
+let size_rat = 3;
+let json = await client.get("categories");
+if (json) {
+  categories = JSON.parse(json);
+}
+json = await client.get("candidates");
+if (json) {
+  candidates = JSON.parse(json);
+}
+json = await client.get("size_rat");
+if (json) {
+  size_rat = parseInt(json);
+}
 
 // Initialize arrays to store candidate scores and category weights
 /**
  * [candidates][categories]
  */
-let scores_matrix: number[][] = [[]];
-let category_weights: number[] = [];
-let size_rat = 3;
+let scores_matrix: number[][] = [];
+let category_weights: number[] = Array(categories.length).fill(0);
+
 
 for (let candidate_id = 0; candidate_id < candidates.length; candidate_id++) {
   let candidate_scores = new Array(categories.length).fill(0);
@@ -23,6 +40,11 @@ interface vote {
 
 // Initialize an array to store all votes
 let votes: vote[] = [];
+const string_votes = await client.hGetAll("e1");
+for (const vote_string in string_votes) {
+  const vote_data: vote = JSON.parse(vote_string);
+  votes.push(vote_data);
+}
 
 // create a few random votes for testing purposes
 for (let i = 0; i < 10; i++) {
@@ -36,7 +58,9 @@ for (let i = 0; i < 10; i++) {
   for (let index = 0; index < Math.floor(Math.random() * candidates.length); index++) {
     random_vote.candidates[Math.floor(Math.random() * candidates.length)] = true;
   }
+  votes.push(random_vote);
 }
+// console.log(votes);
 
 // Function to transform votes into candidate/category score matrix
 for (let vote_id = 0; vote_id < votes.length; vote_id++) {
@@ -60,6 +84,8 @@ for (let vote_id = 0; vote_id < votes.length; vote_id++) {
     }
   }
 }
+// console.log("initial", scores_matrix);
+// console.log("initial", category_weights);
 
 // Transform votes into percentages and store in candidate_relative_scores matrix
 for (let candidate_id = 0; candidate_id < candidates.length; candidate_id++) {
@@ -67,11 +93,13 @@ for (let candidate_id = 0; candidate_id < candidates.length; candidate_id++) {
     scores_matrix[candidate_id][category_id] /= category_weights[category_id];
   }
 }
+// console.log("percent", scores_matrix);
 
 // Transform weights to favour underrepresented categories
 for (let category_id = 0; category_id < categories.length; category_id++) {
   category_weights[category_id] = Math.sqrt(category_weights[category_id]);
 }
+// console.log("sqrt", category_weights);
 
 // Transform vote into scores
 for (let candidate_id = 0; candidate_id < candidates.length; candidate_id++) {
@@ -79,6 +107,7 @@ for (let candidate_id = 0; candidate_id < candidates.length; candidate_id++) {
     scores_matrix[candidate_id][category_id] *= category_weights[category_id];
   }
 }
+// console.log("scores", scores_matrix);
 
 /**
  * calculate the score a particular combination of candidates would have
@@ -115,7 +144,7 @@ function next_selection(): boolean {
 
   let found = false;
   for (let index = size_rat - 1; index >= 0; index--) {
-    if (selection[index] < candidates.length - 2) {
+    if (selection[index] < candidates.length + index - size_rat) {
       selection[index]++;
       for (let i = index + 1; i < size_rat; i++) {
         selection[i] = selection[i - 1] + 1;
@@ -142,6 +171,7 @@ function names_from_selection(selection: number[]): string {
 let max_score = -1;
 let best_selection: number[] = [];
 while (next_selection()) {
+  // console.log(selection);
   const score = calculate_score(selection);
   // console.log(`Score: ${score.toFixed(2)} for selection: ${names_from_selection(selection)}`);
   if (score > max_score) {
@@ -151,3 +181,4 @@ while (next_selection()) {
 }
 
 console.log(`Best score was ${max_score.toFixed(2)} for selection: ${names_from_selection(best_selection)}`);
+await client.quit();
