@@ -1,20 +1,21 @@
 import { createClient } from 'redis';
 const client = createClient();
 await client.connect();
+const election_id = "e1";
 
 // Define the categories and candidates for the voting system
 let categories = ["Graz", "Wien", "Male", "Female", "City", "Land"];
 let candidates = ["x0", "x1", "x2", "x3", "x4", "x5", "x6"];
 let size_rat = 3;
-let json = await client.get("categories");
+let json = await client.hGet(election_id, "categories");
 if (json) {
   categories = JSON.parse(json);
 }
-json = await client.get("candidates");
+json = await client.hGet(election_id, "candidates");
 if (json) {
   candidates = JSON.parse(json);
 }
-json = await client.get("size_rat");
+json = await client.hGet(election_id, "size_rat");
 if (json) {
   size_rat = parseInt(json);
 }
@@ -46,20 +47,20 @@ for (const vote_string in string_votes) {
   votes.push(vote_data);
 }
 
-// create a few random votes for testing purposes
-for (let i = 0; i < 10; i++) {
-  const random_vote: vote = {
-    categories: Array(categories.length).fill(false),
-    candidates: Array(candidates.length).fill(false)
-  }
-  for (let index = 0; index < Math.floor(Math.random() * categories.length); index++) {
-    random_vote.categories[Math.floor(Math.random() * categories.length)] = true;
-  }
-  for (let index = 0; index < Math.floor(Math.random() * candidates.length); index++) {
-    random_vote.candidates[Math.floor(Math.random() * candidates.length)] = true;
-  }
-  votes.push(random_vote);
-}
+// // create a few random votes for testing purposes
+// for (let i = 0; i < 10; i++) {
+//   const random_vote: vote = {
+//     categories: Array(categories.length).fill(false),
+//     candidates: Array(candidates.length).fill(false)
+//   }
+//   for (let index = 0; index < Math.floor(Math.random() * categories.length); index++) {
+//     random_vote.categories[Math.floor(Math.random() * categories.length)] = true;
+//   }
+//   for (let index = 0; index < Math.floor(Math.random() * candidates.length); index++) {
+//     random_vote.candidates[Math.floor(Math.random() * candidates.length)] = true;
+//   }
+//   votes.push(random_vote);
+// }
 // console.log(votes);
 
 // Function to transform votes into candidate/category score matrix

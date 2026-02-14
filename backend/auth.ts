@@ -1,115 +1,107 @@
+import { privateEncrypt, publicDecrypt } from 'node:crypto';
 import { createClient } from 'redis';
 const client = createClient();
 await client.connect();
 
-async function add_token(election_id: string, token: string): Promise<boolean> {
+async function add_token(election_id: string, token: string, private_key: string, signer_id: string): Promise<boolean> {
   if (await client.hGet(election_id, token)) {
     return false;
   }
-  await client.hSet(election_id, token, "valid");
+  // TODO: only do that if the private key is valid
+  await client.hSet(election_id, token, sign_token(token, private_key, signer_id));
   return true;
 }
 
+interface Signature {
+  signer_id: string,
+  signature: string
+}
+
+interface TokenData {
+  used: boolean,
+  signature: Signature,
+  vote_string: string
+}
+
 async function use_token(election_id: string, token: string, vote_data: string): Promise<boolean> {
-  const content = await client.hGet(election_id, token).then((value) => {
-    if (value === "valid") {
-      client.hSet(election_id, token, vote_data);
-      return true
-    } else {
-      return false
+  const token_value = await client.hGet(election_id, token);
+  if (token_value) {
+    const token_data = JSON.parse(token_value) as TokenData;
+    if (!token_data.used) {
+      if (await verify_token_signature(token, token_data.signature)) {
+        token_data.used = true; // mark as used
+        token_data.vote_string = vote_data; // update vote data
+        client.hSet(election_id, token, JSON.stringify(token_data));
+        return true
+      }
     }
-  });
-  return !!content;
-}
-const election_id = "e1"
-await client.hGet(election_id, "adri").then(console.log);
-await add_token(election_id, "adri");
-await client.hGet(election_id, "adri").then(console.log);
-await use_token(election_id, "adri", "vote_data").then(console.log);
-await client.hGet(election_id, "adri").then(console.log);
-
-
-function hash(input: string) {
-  return input + "hash";
-}
-
-interface Key {
-  key_id: string;
-  key: string;
-  signed_by: string;
-  hash: string;
-}
-
-let keys: Key[] = [
-  { key_id: "root", key: "pass1", signed_by: "root", hash: "" },
-];
-
-interface SignedToken {
-  key_id: string;
-  token: string;
-  hash: string;
-}
-function find_key(key_id: string): Key | undefined {
-  return keys.find((key: Key) => key.key_id === key_id);
-}
-function sign_token(key_id: string, token: string): SignedToken {
-  const key = find_key(key_id);
-  if (!key) {
-    throw new Error("Key not found!");
   }
-  return {
-    key_id,
-    hash: hash(key.key + token),
-    token,
-  };
+  return false
+}
+interface PublicKey {
+  signed_by: string,
+  signature: string,
+  public_key: string
 }
 
-function sign_key(
-  key_id: string,
-  key: string,
-  new_key_id: string,
-  new_key: string
-): void {
-  const currentKey = find_key(key_id);
-  if (!currentKey) {
-    throw new Error("Key not found!");
-  }
-  if (new_key_id === "root") {
-    throw new Error("You cannot add a root key");
-  }
-  keys.push({
-    key_id: new_key_id,
-    key: new_key,
-    signed_by: key_id,
-    hash: hash(key + new_key_id),
-  });
-}
-
-function check_token(signed_token: SignedToken): boolean {
-  const token = find_key(signed_token.key_id);
-  if (!token) {
-    throw new Error("Key not found!");
-  }
-  return (
-    signed_token.hash === hash(token.key + signed_token.token)
-  );
-}
-
-function check_key(key_id: string): boolean {
-  if (key_id === "root") {
+async function verify_key(key: PublicKey): Promise<boolean> {
+  if (key.signed_by === "root") {
     return true;
   }
-  const key = find_key(key_id);
-  if (!key) {
-    throw new Error("Key not found!");
+  const key_data_string = await client.hGet("public_keys", key.signed_by);
+  if (key_data_string) {
+    const key_data = JSON.parse(key_data_string) as PublicKey;
+    if (await verify_key(key_data)) {
+      return key.signature === key_data.public_key + key.public_key; // TODO: real verification
+    }
   }
-  return (
-    key.hash === hash(find_key(key.signed_by)?.key + key_id)
-  );
+  return false;
 }
 
-function key_exists(key_id: string): boolean {
-  return keys.some((key: Key) => key.key_id === key_id);
+async function add_public_key(new_pub_key: string, new_id: string, signer_private_key: string, signed_by: string) {
+  if (signed_by === "root") {
+    return false;
+  }
+  const pub_key: PublicKey = {
+    signed_by: signed_by,
+    signature: signer_private_key + new_pub_key, // TODO: real signing
+    public_key: new_pub_key
+  };
+  client.hSet("public_keys", new_id, JSON.stringify(pub_key));
+}
+
+add_public_key("adri's_password", "adri", "root_password", "root");
+
+const election_id = "e1"
+await client.hGet(election_id, "token").then(console.log);
+await add_token(election_id, "token", "adri's_password", "adri").then(console.log);
+await client.hGet(election_id, "token").then(console.log);
+await use_token(election_id, "token", "vote_data").then(console.log);
+await client.hGet(election_id, "token").then(console.log);
+
+async function verify_token_signature(token: string, signature: Signature): Promise<boolean> {
+  const pub_key_string = await client.hGet("public_keys", signature.signer_id);
+  if (!pub_key_string)
+    return false;
+  const pub_key = JSON.parse(pub_key_string) as PublicKey;
+  if (await verify_key(pub_key)) {
+    return signature.signature == pub_key.public_key + token; // TODO: replace with actual verification logic
+  }
+  return false;
+}
+
+function sign_token(token: string, private_key: string, signer_id: string): string {
+  const signature: Signature = {
+    signer_id: signer_id,
+    signature: private_key + token // TODO: replace with actual signing logic
+  };
+  const token_data: TokenData = {
+    used: false,
+    signature: signature,
+    vote_string: ""
+  };
+  return JSON.stringify(token_data);
 }
 
 await client.quit();
+export { add_token, use_token };
