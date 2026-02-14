@@ -1,6 +1,7 @@
 function hash(input: string) {
   return input + "hash";
 }
+
 interface Key {
   key_id: string;
   key: string;
@@ -17,19 +18,18 @@ interface SignedToken {
   token: string;
   hash: string;
 }
-function find_key(key_id: string) {
-  const key = keys.find((key: Key) => key.key_id == key_id);
-  if (!key) {
-    throw "key not found!";
-  }
-  return key;
+function find_key(key_id: string): Key | undefined {
+  return keys.find((key: Key) => key.key_id === key_id);
 }
-
 function sign_token(key_id: string, token: string): SignedToken {
+  const key = find_key(key_id);
+  if (!key) {
+    throw new Error("Key not found!");
+  }
   return {
-    key_id: key_id,
-    hash: hash(find_key(key_id).key + token),
-    token: token,
+    key_id,
+    hash: hash(key.key + token),
+    token,
   };
 }
 
@@ -37,13 +37,14 @@ function sign_key(
   key_id: string,
   key: string,
   new_key_id: string,
-  new_key: string,
-) {
-  if (find_key(key_id).key != key) {
-    throw "wrong key for signing";
+  new_key: string
+): void {
+  const currentKey = find_key(key_id);
+  if (!currentKey) {
+    throw new Error("Key not found!");
   }
-  if (new_key_id == "root") {
-    throw "you try to add a root key, this is not possible";
+  if (new_key_id === "root") {
+    throw new Error("You cannot add a root key");
   }
   keys.push({
     key_id: new_key_id,
@@ -53,22 +54,29 @@ function sign_key(
   });
 }
 
-function check_token(signed_token: SignedToken) {
+function check_token(signed_token: SignedToken): boolean {
+  const token = find_key(signed_token.key_id);
+  if (!token) {
+    throw new Error("Key not found!");
+  }
   return (
-    signed_token.hash == hash(keys[signed_token.key_id] + signed_token.token)
+    signed_token.hash === hash(token.key + signed_token.token)
   );
 }
 
 function check_key(key_id: string): boolean {
-  if (key_id == "root") {
+  if (key_id === "root") {
     return true;
   }
   const key = find_key(key_id);
-  check_key(key.signed_by);
-  return key.hash == hash(find_key(key.signed_by).key + key_id);
+  if (!key) {
+    throw new Error("Key not found!");
+  }
+  return (
+    key.hash === hash(find_key(key.signed_by)?.key + key_id)
+  );
 }
 
 function key_exists(key_id: string): boolean {
-  if
-  return true;
+  return keys.some((key: Key) => key.key_id === key_id);
 }
